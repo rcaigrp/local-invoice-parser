@@ -1,57 +1,55 @@
 import argparse
 import os
+import glob
 import sys
-import re
-from pathlib import Path
-from typing import List, Dict
-
-# Import modules
-from ocr_engine import extract_text_from_file
-from parser import parse_invoice
-from formatter import generate_csv, generate_json
+from parser import InvoiceParser
 
 def main():
-    parser = argparse.ArgumentParser(description='Local Invoice Parser')
-    parser.add_argument('directory', type=str, help='Directory containing invoice images (png, jpg, pdf)')
-    parser.add_argument('--output', type=str, required=True, help='Output filename (report.csv or report.json)')
-    parser.add_argument('--format', choices=['csv', 'json'], default='csv', help='Output format')
+    parser = argparse.ArgumentParser(description='Parse invoices from a directory.')
+    parser.add_argument('--input', '-i', required=True, help='Directory containing invoice images/PDFs')
+    parser.add_argument('--output', '-o', required=True, help='Output CSV file path')
     args = parser.parse_args()
 
-    # Validate directory
-    if not os.path.isdir(args.directory):
-        print(f"Error: Directory '{args.directory}' not found.")
-        sys.exit(1)
+    if not os.path.exists(args.input):
+        print(f"Error: Input directory '{args.input}' does not exist.")
+        return 1
 
-    # Find files
-    extensions = ('.png', '.jpg', '.jpeg', '.pdf')
-    files = [f for f in os.listdir(args.directory) if f.lower().endswith(extensions)]
+    # Scan for supported image files
+    file_patterns = ['*.png', '*.jpg', '*.jpeg', '*.pdf']
+    files = []
+    for ext in file_patterns:
+        files.extend(glob.glob(os.path.join(args.input, ext)))
 
     if not files:
-        print(f"No invoice files found in {args.directory}")
-        sys.exit(0)
+        print(f"No invoice files found in {args.input}")
+        return 1
 
-    print(f"Found {len(files)} invoice(s). Processing...")
-    all_entries = []
+    # Process files
+    extractor = InvoiceParser()
+    results = []
 
-    for filename in files:
-        filepath = os.path.join(args.directory, filename)
+    for file_path in files:
+        print(f"Processing {os.path.basename(file_path)}...")
         try:
-            text = extract_text_from_file(filepath)
-            if text:
-                parsed_data = parse_invoice(text)
-                if parsed_data:
-                    parsed_data['filename'] = filename
-                    all_entries.append(parsed_data)
+            extracted = extractor.process_invoice(file_path)
+            if extracted:
+                results.append(extracted)
         except Exception as e:
-            print(f"Error processing {filename}: {e}")
+            print(f"Failed to process {file_path}: {e}")
+            continue
 
-    # Output
-    if args.format == 'csv':
-        generate_csv(all_entries, args.output)
-    else:
-        generate_json(all_entries, args.output)
+    # Write CSV
+    try:
+        with open(args.output, 'w') as f:
+            f.write('vendor,date,amount,tax_category\n')
+            for row in results:
+                f.write(f"{row['vendor']},{row['date']},{row['amount']},{row['tax_category']}\n")
+        print(f"Successfully parsed {len(results)} invoices to {args.output}")
+    except Exception as e:
+        print(f"Error writing output: {e}")
+        return 1
 
-    print(f"Done. Results saved to {args.output}")
+    return 0
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())

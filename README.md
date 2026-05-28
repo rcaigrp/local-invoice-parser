@@ -1,46 +1,33 @@
-# Local Invoice Parser
+# Local-Invoice-Parser
 
-A privacy-first, local-only CLI tool to extract and categorize invoice data from image and PDF files.
+An offline, client-side CLI tool to parse invoice images into structured data using OCR.
 
 ## What it does
-
-Scans a specified directory for invoice images (PNG, JPG) and PDFs, extracts text using local OCR, identifies key fields using regex, and outputs structured data.
+Scans a folder for images/PDFs, extracts text via Tesseract OCR, and parses fields like Date, Amount, and Vendor using Regex.
 
 ## Installation
 
-```bash
-# Install Python dependencies
-cd Local-Invoice-Parser
-curl -s https://pyenv.run/bin/install.sh | bash
-pyenv install 3.11
-pyenv local 3.11
-pip install pytesseract pillow pyyaml
-
-# Install Tesseract OCR (System Dependency)
-# Ubuntu/Debian:
-sudo apt-get install -y tesseract-ocr tesseract-ocr-eng
-# MacOS:
-brew install tesseract
-```
+1.  Clone the repository
+2.  Install Python dependencies:
+    ```bash
+    pip install -r requirements.txt
+    ```
+    **Note:** You must have `tesseract-ocr` installed on your system (OS packages or Docker image). PyTesseract depends on this binary.
 
 ## Usage
 
 ```bash
-# Parse invoices and save to CSV
-python main.py --input ./invoices --output ./output.csv --tax-rules ./rules.yml
+python main.py --input ./invoices --output ./parsed.csv
 ```
 
 ## Configuration
 
-The tool supports a YAML configuration file (`rules.yml`) to define:
-- **Regex Patterns**: Custom patterns for extracting dates, amounts, and vendor names.
-- **Tax Rules**: Simple lookup logic for categorizing expenses (e.g., Office Supplies, Meals).
+No external config required. Regex rules are embedded in `parser.py`.
 
-Example `rules.yml`:
-```yaml
-amount_pattern: "\\d+\\.\\d{2}"
-date_pattern: "\\d{4}-\\d{2}-\\d{2}"
-tax_rules:
-  "Coffee Shop": "Meals"
-  "Office Supply Co.": "Office Supplies"
+## Example Output (CSV)
+
+```csv
+vendor,date,amount,tax_category
+Amazon,$120.00,Electronics
+Uber,$45.50,Transportation
 ```

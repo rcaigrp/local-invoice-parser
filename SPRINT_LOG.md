@@ -98,3 +98,7 @@ Initializing Local-Invoice-Parser architecture. Defining CLI structure, regex pa
   }
 }
 ```
+
+## Turn 6 — Craft (2026-05-28 15:45 UTC)
+
+Pivoting away from external HTTP mocking libraries (responses/pytest-mock) to pure `unittest.mock` patching strategy to fix the installation failure. Rewriting parser and main modules to be fully mockable and implementing a clean test suite.
