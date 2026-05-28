@@ -171,3 +171,7 @@ Initializing the Local-Invoice-Parser project. Created project.json and README.m
 ## Turn 11 — Architect (2026-05-28 16:03 UTC)
 
 Setting up the Local-Invoice-Parser project scaffolding and defining the Definition of Done via acceptance tests. The tests will mock pytesseract to ensure the regex logic is validated without requiring system dependencies.
+
+## Turn 12 — Manager (2026-05-28 16:21 UTC)
+
+
