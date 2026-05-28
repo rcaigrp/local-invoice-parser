@@ -1,24 +1,39 @@
-# Local Invoice Parser
+# Local-Invoice-Parser
 
-A privacy-first CLI tool that extracts invoice data from local image files using OCR and regex parsing.
+A privacy-first, local-only CLI tool for parsing receipt images and invoices to extract structured financial data without sending data to the cloud.
 
-## Installation & Setup
+## Installation
 
-1. Clone the repository.
-2. Install Python dependencies:
+1. **Install Python Dependencies:**
    ```bash
-   pip install pytesseract pillow regex pydantic
+   pip install -r requirements.txt
    ```
-3. Download and install Tesseract OCR engine from [UB-Mannheim](https://github.com/UB-Mannheim/tesseract/wiki) or similar source.
+
+2. **Install System Dependencies (Tesseract OCR):**
+   *On Linux (Debian/Ubuntu):*
+   ```bash
+   sudo apt-get install tesseract-ocr tesseract-ocr-eng libtesseract-dev libpoppler-cpp-dev poppler-utils
+   ```
+   *On macOS:*
+   ```bash
+   brew install tesseract
+   ```
+
+3. **Download Tesseract Language Data:**
+   Ensure the English data file (e.g., `eng.traineddata`) is in your system PATH or tesseract installation directory.
 
 ## Usage
 
-Run the tool against a directory of invoices:
-
+Scan a directory of invoices:
 ```bash
-python main.py --input ./invoices/ --output ./parsed_invoices.json --tax-rules ./tax_rules.yml
+python main.py /path/to/invoices --output report.csv --format csv
+```
+
+Generate JSON output:
+```bash
+python main.py /path/to/invoices --output report.json --format json
 ```
 
 ## Configuration
 
-No environment variables required. All processing is local.
+The tool uses a default `tax_rules.json` included in the project. You can provide a custom tax rule file via `--tax-rules custom_rules.json`.
