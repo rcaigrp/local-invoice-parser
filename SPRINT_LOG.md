@@ -376,3 +376,7 @@ Initializing new project 'Local-Invoice-Parser'. Creating project.json and READM
 ## Turn 23 — Manager (2026-05-28 17:19 UTC)
 
 Project 'Local-Invoice-Parser' initialized as an active sprint. Defining scope for local OCR processing and tax categorization.
+
+## Turn 24 — Architect (2026-05-28 17:24 UTC)
+
+

@@ -1,52 +1,32 @@
-# Local-Invoice-Parser
+# Local Invoice Parser
 
-A local-first CLI tool for parsing invoice images and PDFs into structured CSV/JSON data using local OCR.
+A privacy-first, local-only CLI tool to scan directories for invoices, extract data using OCR and Regex, and output structured data without cloud dependencies.
 
 ## What it does
-Scans a directory for invoice images (PNG, JPG, PDF), extracts text using Tesseract OCR, parses fields (Vendor, Date, Amount) via regex, and categorizes them for tax purposes. All processing happens locally.
+Scans a directory for PNG/JPG/PDF invoices, extracts text using local OCR, parses for vendor/date/amount using Regex, and saves to CSV/JSON.
 
 ## Installation
 
-Requires Python 3.8+.
-
+1.  Clone the repository
+2.  Install dependencies:
 ```bash
-pip install pytesseract pillow pandas
+pip install -r requirements.txt
 ```
-
-You also need Tesseract OCR installed on your system path.
 
 ## Usage
 
-Scan a folder of invoices and output a CSV:
-
+Scan the current directory and output CSV:
 ```bash
-python main.py --directory ./invoices --output ./output.csv
+python -m Local_Invoice_Parser
 ```
 
-Output a JSON file:
-
+Scan a specific directory:
 ```bash
-python main.py --directory ./invoices --output ./output.json --format json
+python -m Local_Invoice_Parser /path/to/invoices --output json
 ```
 
 ## Configuration
+No external config required. All processing is local.
 
-Create a `config.json` file in the project directory to define regex patterns:
-
-```json
-{
-  "patterns": {
-    "date": "\\d{4}-\\d{2}-\\d{2}",
-    "amount": "\\d+(.\\d*)?",
-    "vendor": "[A-Za-z ]+"
-  },
-  "tax_rules": {
-    "food": "(dining|restaurant|food)",
-    "travel": "(flight|hotel|taxi)"
-  }
-}
-```
-
-## Development
-
-Start the sprint to build the core parsing logic and regex engine.
+## Tax Categorization
+Basic tax logic can be added in `invoice_parser.py` by extending the regex patterns.
