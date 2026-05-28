@@ -183,3 +183,7 @@ Initializing Local-Invoice-Parser project as the next queued idea. The project s
 ## Turn 14 — Architect (2026-05-28 16:28 UTC)
 
 I am architecting the Local-Invoice-Parser. I will define the regex patterns for extracting vendor, date, and amount from OCR output, and design the directory scanning logic. I am establishing the project structure and mandatory acceptance tests first, per Manager's rule 11.
+
+## Turn 15 — Craft (2026-05-28 16:31 UTC)
+
+Creating the Local-Invoice-Parser project structure and implementing the core scanning and parsing logic in main.py.

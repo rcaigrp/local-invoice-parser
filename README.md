@@ -1,30 +1,41 @@
 # Local Invoice Parser
 
-A privacy-first, local-only CLI tool to scan directories for invoices, extract data using OCR, and categorize expenses.
+A privacy-first, local-only CLI tool to parse invoices from images and PDFs without sending data to the cloud.
 
-## What the app does
-Scans a specified directory for image files (PNG, JPG, PDF), extracts text using local OCR, and identifies vendor, date, and amount fields using regex patterns.
+## What it does
+Scans a directory for images/PDFs, uses local OCR to extract text, applies regex to find vendor, date, and amount, and outputs structured CSV or JSON.
 
-## Installation and Setup
-1. **Clone the repo**
-2. **Install dependencies:**
-   ```bash
-   pip install pytesseract pdf2image re pandas
-   ```
-3. **System Dependencies:**
-   - **Tesseract OCR**: Must be installed on the host system. (Download from [UB Mannheim](https://github.com/UB-Mannheim/tesseract/wiki) or brew install tesseract on Mac).
+## Installation & Setup
 
-## Usage Examples
+### 1. Install Python Dependencies
+```bash
+pip install pytesseract pillow pdf2image
+```
 
-1. **Run the parser:**
-   ```bash
-   python main.py --directory ./invoices --output ./output.csv
-   ```
+### 2. Install Tesseract OCR (System Dependency)
+This tool requires the Tesseract OCR binary installed on your system.
 
-2. **Run with tax rules:**
-   ```bash
-   python main.py --directory ./invoices --tax-rules ./config.json
-   ```
+- **On Ubuntu/Debian:**
+  ```bash
+  sudo apt-get update && sudo apt-get install -y tesseract-ocr libtesseract-dev libleptonica-dev pkg-config
+  ```
+- **On macOS:**
+  ```bash
+  brew install tesseract
+  ```
+
+## Usage
+
+Run the script from the command line:
+
+```bash
+python main.py --input ./invoices --output --format csv
+```
+
+### Arguments
+- `--input`: Path to the directory containing invoice images/PDFs.
+- `--output`: Path to the output file (defaults to stdout).
+- `--format`: Output format, either 'csv' or 'json'.
 
 ## Configuration
-- No external configuration needed. All rules are embedded in the code for this initial version.
+No configuration files required. All processing happens locally.
