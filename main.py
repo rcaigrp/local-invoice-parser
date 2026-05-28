@@ -1,141 +1,109 @@
 import os
 import re
-import sys
-import json
 import csv
+import json
 from pathlib import Path
-from pdf2image import convert_from_path
-from PIL import Image
 import pytesseract
+from pdf2image import convert_path
 
-# Regex Patterns
-DATE_PATTERN = r'\d{2}/\d{2}/\d{4}|\d{4}-\d{2}-\d{2}'
-AMOUNT_PATTERN = r'\$?\s*\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{2})?'
-VENDOR_PATTERN = r'[A-Z][a-z]+\s[A-Z][a-z]+' # Simple heuristic
+# Robust Regex Patterns
+VENDOR_PATTERN = re.compile(
+    r'^([A-Z][A-Za-z\s&]+)\s*\d',  # Starts with capital letter, stops before first number
+    re.MULTILINE
+)
 
-class InvoiceParser:
-    def __init__(self, input_dir):
-        self.input_dir = Path(input_dir)
-        self.entries = []
+DATE_PATTERN = re.compile(
+    r'\d{1,2}[\/.-]\d{1,2}[\/.-]\d{2,4}', # DD/MM or MM/DD or YYYY-MM
+    re.IGNORECASE
+)
 
-    def scan_directory(self):
-        """Scans input directory for images and PDFs."""
-        print(f"Scanning {self.input_dir}...")
-        supported_extensions = ('.png', '.jpg', '.jpeg', '.pdf')
-        
-        for root, _, files in os.walk(self.input_dir):
-            for file in files:
-                if file.lower().endswith(supported_extensions):
-                    file_path = Path(root) / file
-                    print(f"Found: {file_path}")
-                    self.process_file(file_path)
-        
-        return self.entries
+AMOUNT_PATTERN = re.compile(
+    r'[$€£]\s?\d{1,3}(?:,\d{3})*(?:\.\d{2})?', # Currency with optional thousands and decimals
+    re.IGNORECASE
+)
 
-    def process_file(self, file_path):
-        """Processes a single file to extract text."""
-        text = ""
-        try:
-            if file_path.suffix.lower() == '.pdf':
-                # Convert PDF to images first
-                images = convert_from_path(str(file_path))
-                for image in images:
-                    text += pytesseract.image_to_string(image)
-            else:
-                # Process image directly
-                img = Image.open(file_path)
-                text = pytesseract.image_to_string(img)
-        except Exception as e:
-            print(f"Error processing {file_path}: {e}")
-            return
+def scan_directory(directory):
+    """Recursively scans directory for image and pdf files."""
+    directory = Path(directory).resolve()
+    supported_extensions = {'.png', '.jpg', '.jpeg', '.pdf'}
+    files = []
+    for root, dirs, filenames in os.walk(directory):
+        for filename in filenames:
+            if filename.lower().endswith(tuple(supported_extensions)):
+                files.append(os.path.join(root, filename))
+    return files
 
-        data = self.parse_text(text)
-        if data:
-            data['file_path'] = str(file_path)
-            self.entries.append(data)
-            print(f"  -> Extracted: {data.get('vendor', 'Unknown')} - {data.get('date', 'N/A')} - ${data.get('amount', 0.00)}")
+def extract_text_from_file(filepath):
+    """Extracts text using OCR."""
+    text = ""
+    try:
+        if filepath.suffix.lower() == '.pdf':
+            # Convert PDF to images for tesseract
+            images = convert_path(filepath, grayscale=True, poppler_path=None)
+            for img in images:
+                text += pytesseract.image_to_string(img) + "\n"
+        elif filepath.suffix.lower() in ['.png', '.jpg', '.jpeg']:
+            text = pytesseract.image_to_string(filepath)
+    except Exception as e:
+        print(f"Error processing {filepath}: {e}")
+    return text
 
-    def parse_text(self, text):
-        """Applies regex rules to extract invoice data."""
-        data = {}
-        
-        # Extract Date
-        date_match = re.search(DATE_PATTERN, text)
-        if date_match:
-            data['date'] = date_match.group()
+def parse_invoice_data(text):
+    """Applies regex patterns to extract vendor, date, and amount."""
+    data = {
+        'vendor': None,
+        'date': None,
+        'amount': None
+    }
+    
+    # Extract Vendor
+    vendor_match = VENDOR_PATTERN.search(text)
+    if vendor_match:
+        data['vendor'] = vendor_match.group(1).strip()
+    
+    # Extract Date
+    date_matches = DATE_PATTERN.findall(text)
+    if date_matches:
+        # Return the most likely date (usually last one)
+        data['date'] = date_matches[-1]
+    
+    # Extract Amount
+    amount_matches = AMOUNT_PATTERN.findall(text)
+    if amount_matches:
+        # Return the largest amount found
+        amounts = [float(a.replace(',', '').replace('$', '').replace('€', '').replace('£', '')) for a in amount_matches]
+        data['amount'] = max(amounts)
+    
+    return data
 
-        # Extract Amount
-        amount_match = re.search(AMOUNT_PATTERN, text)
-        if amount_match:
-            # Clean amount string (remove currency symbols, commas)
-            amount_str = amount_match.group().replace(',', '').replace('$', '')
-            try:
-                data['amount'] = float(amount_str)
-            except ValueError:
-                data['amount'] = 0.00
-
-        # Extract Vendor (Heuristic)
-        lines = text.split('\n')
-        for line in lines:
-            match = re.match(VENDOR_PATTERN, line.strip())
-            if match:
-                data['vendor'] = match.group()
-                break
-
-        return data
-
-    def save_csv(self, output_path):
-        """Saves extracted data to CSV."""
-        if not self.entries:
-            print("No data to save.")
-            return
-
-        with open(output_path, 'w', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow(['File', 'Vendor', 'Date', 'Amount'])
-            for entry in self.entries:
-                writer.writerow([
-                    entry.get('file_path', ''),
-                    entry.get('vendor', ''),
-                    entry.get('date', ''),
-                    entry.get('amount', '')
-                ])
-        print(f"Saved to {output_path}")
-
-    def save_json(self, output_path):
-        """Saves extracted data to JSON."""
-        if not self.entries:
-            print("No data to save.")
-            return
-
-        with open(output_path, 'w') as f:
-            json.dump(self.entries, f, indent=2)
-        print(f"Saved to {output_path}")
-
-if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: python main.py --input <dir> [--output <file>] [--format csv/json]")
-        sys.exit(1)
-
-    input_dir = sys.argv[1].replace('--input', '').lstrip('=').strip()
-    output_path = None
-    output_format = 'json'
-
-    for i in range(2, len(sys.argv)):
-        if sys.argv[i] == '--output' and i + 1 < len(sys.argv):
-            output_path = sys.argv[i + 1]
-        if sys.argv[i] == '--format' and i + 1 < len(sys.argv):
-            output_format = sys.argv[i + 1].lower()
-
-    parser = InvoiceParser(input_dir)
-    parser.scan_directory()
-
-    if output_path:
-        if output_format == 'csv':
-            parser.save_csv(output_path)
-        elif output_format == 'json':
-            parser.save_json(output_path)
+def main(input_dir, output_file):
+    print(f"Scanning directory: {input_dir}")
+    files = scan_directory(input_dir)
+    
+    parsed_data = []
+    for file_path in files:
+        print(f"Processing: {file_path}")
+        text = extract_text_from_file(Path(file_path))
+        if text:
+            data = parse_invoice_data(text)
+            data['filename'] = file_path.name
+            parsed_data.append(data)
+            print(f"  - Vendor: {data.get('vendor')}, Date: {data.get('date')}, Amount: {data.get('amount')}")
+    
+    # Write to CSV
+    if parsed_data:
+        with open(output_file, 'w', newline='') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=['filename', 'vendor', 'date', 'amount'])
+            writer.writeheader()
+            writer.writerows(parsed_data)
+        print(f"\nResults saved to {output_file}")
     else:
-        print("\n--- Summary ---")
-        for entry in parser.entries:
-            print(entry)
+        print("No valid invoice data found.")
+
+if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser(description='Parse invoices from images or PDFs.')
+    parser.add_argument('directory', help='Directory containing invoice images/PDFs')
+    parser.add_argument('--output', default='invoices_parsed.csv', help='Output CSV file')
+    args = parser.parse_args()
+    main(args.directory, args.output)
