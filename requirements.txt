@@ -1,6 +1,3 @@
-pytesseract
-pillow
-re
-pandas
+regex
 pytest
 pytest-mock

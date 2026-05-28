@@ -1,31 +1,23 @@
 # Local-Invoice-Parser
 
-A privacy-first, local-only CLI tool to scan directories for invoices (PNG, JPG, PDF), extract text using Tesseract OCR, and categorize expenses via regex.
+## What the app does
+A privacy-first, local-only CLI tool that scans directories for invoices, extracts data using local OCR and regex, and outputs structured reports.
 
-## What it does
+## Installation and setup steps
 
-Scans a specified directory for image and PDF invoice files, extracts text using local OCR (pytesseract), identifies vendor, date, and amount fields using regex, and outputs results to CSV and JSON formats with tax categorization.
-
-## Installation and Setup
-
-1. **Install Python Dependencies:**
+1. Clone the repository.
+2. Install Python dependencies:
    ```bash
-   pip install pytesseract pillow
+   pip install regex pytest pytest-mock
    ```
+3. *Note: System-level Tesseract OCR is required for production use, but tests will mock this dependency.*
 
-2. **Install Tesseract OCR (System Dependency):**
-   You must have Tesseract OCR installed on your system. The path must be added to your PATH environment variable.
-   - On macOS: `brew install tesseract`
-   - On Ubuntu: `sudo apt-get install tesseract-ocr`
-   - On Windows: Download the installer from [UB Mannheim](https://github.com/UBMannheim/Tesseract-ocr-for-Windows/releases).
+## Usage examples
 
-## Usage
-
-Run the CLI tool against a directory to scan for invoices:
+Run the parser on a directory:
 ```bash
-python -m local_invoice_parser /path/to/invoices --output-dir ./output
+python main.py /path/to/invoices
 ```
 
 ## Configuration
-
-No configuration files are required for basic usage. Tax categorization rules can be added via a `config.yaml` file if needed in future iterations.
+No environment variables or config files required for basic usage.
