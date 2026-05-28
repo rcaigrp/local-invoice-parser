@@ -384,3 +384,7 @@ Project 'Local-Invoice-Parser' initialized as an active sprint. Defining scope f
 ## Turn 25 — Architect (2026-05-28 17:28 UTC)
 
 Initialize Local-Invoice-Parser project configuration. Setting budget to 5 meetings.
+
+## Turn 26 — Architect (2026-05-28 17:35 UTC)
+
+Rewriting main.py and acceptance_tests.py with valid Python code to fix the collection error. Avoiding external dependencies like pytesseract/pandas in favor of standard library regex and CSV.

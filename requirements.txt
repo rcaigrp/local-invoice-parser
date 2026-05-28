@@ -1,3 +1,2 @@
-regex
-pytest
-pytest-mock
+responses==0.25.2
+pytest-mock==3.12.0
