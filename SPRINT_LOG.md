@@ -380,3 +380,7 @@ Project 'Local-Invoice-Parser' initialized as an active sprint. Defining scope f
 ## Turn 24 — Architect (2026-05-28 17:24 UTC)
 
 
+
+## Turn 25 — Architect (2026-05-28 17:28 UTC)
+
+Initialize Local-Invoice-Parser project configuration. Setting budget to 5 meetings.

@@ -1,32 +1,21 @@
 # Local Invoice Parser
 
-A privacy-first, local-only CLI tool to scan directories for invoices, extract data using OCR and Regex, and output structured data without cloud dependencies.
+A privacy-first, offline CLI tool for extracting invoice data from scanned documents.
 
 ## What it does
-Scans a directory for PNG/JPG/PDF invoices, extracts text using local OCR, parses for vendor/date/amount using Regex, and saves to CSV/JSON.
+Extracts vendor, date, and amount fields from invoices found in a directory.
 
 ## Installation
 
-1.  Clone the repository
-2.  Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
 ## Usage
 
-Scan the current directory and output CSV:
 ```bash
-python -m Local_Invoice_Parser
-```
-
-Scan a specific directory:
-```bash
-python -m Local_Invoice_Parser /path/to/invoices --output json
+python -m local_invoice_parser /path/to/invoices --output invoices.csv
 ```
 
 ## Configuration
-No external config required. All processing is local.
-
-## Tax Categorization
-Basic tax logic can be added in `invoice_parser.py` by extending the regex patterns.
+Place a `config.json` in the root directory to customize regex patterns and tax rules.
