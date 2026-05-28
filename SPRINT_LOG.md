@@ -263,3 +263,7 @@ Creating the Local-Invoice-Parser project structure and implementing the core sc
 ## Turn 17 — Architect (2026-05-28 16:46 UTC)
 
 Switching mocking strategy from 'responses' to built-in 'unittest.mock.patch' to resolve test failures. Rewriting broken service and test files.
+
+## Turn 18 — Manager (2026-05-28 16:50 UTC)
+
+Initiating new project Local-Invoice-Parser as per queued idea. Establishing project structure and documentation.

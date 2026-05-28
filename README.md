@@ -1,27 +1,25 @@
-# Local-Invoice-Parser
+# Local Invoice Parser
 
-A privacy-first, local-only CLI tool to parse invoices from images and PDF files using Tesseract OCR and Regex patterns.
+A CLI tool to extract invoice data (vendor, date, amount) from images and PDFs using local OCR and regex, outputting structured CSV/JSON data.
 
 ## What it does
-Scans a directory for image files, extracts text using OCR, and identifies key invoice fields (Vendor, Date, Amount) using robust Regular Expressions.
+Scans a directory for invoice images, extracts text using OCR, identifies key fields via regex, and generates structured data files.
 
-## Installation and Setup
-
-### System Requirements
-You need Tesseract OCR installed on your system. On Ubuntu/Debian: `sudo apt-get install tesseract-ocr tesseract-ocr-eng`.
-
-### Dependencies
-```bash
-pip install pytesseract pillow pdf2image
-```
+## Installation
+1. Install Python dependencies:
+   ```bash
+   pip install pytesseract pillow pandas
+   ```
+2. Install Tesseract OCR engine (system dependency):
+   * Ubuntu: `sudo apt-get install tesseract-ocr`
+   * Mac: `brew install tesseract`
+   * Windows: Download from [UB-Mannheim](https://github.com/UB-Mannheim/tesseract/wiki).
 
 ## Usage
-
-1. Create a folder with invoice images (png/jpg/pdf).
-2. Run the script:
+Scan a directory of invoices and save results to CSV:
 ```bash
-python main.py /path/to/invoices --output invoices_parsed.csv
+python local_invoice_parser.py /path/to/invoices --output invoices.csv
 ```
 
 ## Configuration
-The script looks for the Tesseract executable in your PATH. No cloud services or APIs are used.
+The tool looks for images in the input directory. Output format (CSV/JSON) is selected via the `--output` flag. Tax rules are defined in a simple JSON config file located in the project root.
