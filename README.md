@@ -1,39 +1,46 @@
-# Local-Invoice-Parser
+# Local Invoice Parser
 
-A privacy-first, local-only CLI tool for parsing receipt images and invoices to extract structured financial data without sending data to the cloud.
+A privacy-first, local-only CLI tool to extract and categorize invoice data from image and PDF files.
+
+## What it does
+
+Scans a specified directory for invoice images (PNG, JPG) and PDFs, extracts text using local OCR, identifies key fields using regex, and outputs structured data.
 
 ## Installation
 
-1. **Install Python Dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
+```bash
+# Install Python dependencies
+cd Local-Invoice-Parser
+curl -s https://pyenv.run/bin/install.sh | bash
+pyenv install 3.11
+pyenv local 3.11
+pip install pytesseract pillow pyyaml
 
-2. **Install System Dependencies (Tesseract OCR):**
-   *On Linux (Debian/Ubuntu):*
-   ```bash
-   sudo apt-get install tesseract-ocr tesseract-ocr-eng libtesseract-dev libpoppler-cpp-dev poppler-utils
-   ```
-   *On macOS:*
-   ```bash
-   brew install tesseract
-   ```
-
-3. **Download Tesseract Language Data:**
-   Ensure the English data file (e.g., `eng.traineddata`) is in your system PATH or tesseract installation directory.
+# Install Tesseract OCR (System Dependency)
+# Ubuntu/Debian:
+sudo apt-get install -y tesseract-ocr tesseract-ocr-eng
+# MacOS:
+brew install tesseract
+```
 
 ## Usage
 
-Scan a directory of invoices:
 ```bash
-python main.py /path/to/invoices --output report.csv --format csv
-```
-
-Generate JSON output:
-```bash
-python main.py /path/to/invoices --output report.json --format json
+# Parse invoices and save to CSV
+python main.py --input ./invoices --output ./output.csv --tax-rules ./rules.yml
 ```
 
 ## Configuration
 
-The tool uses a default `tax_rules.json` included in the project. You can provide a custom tax rule file via `--tax-rules custom_rules.json`.
+The tool supports a YAML configuration file (`rules.yml`) to define:
+- **Regex Patterns**: Custom patterns for extracting dates, amounts, and vendor names.
+- **Tax Rules**: Simple lookup logic for categorizing expenses (e.g., Office Supplies, Meals).
+
+Example `rules.yml`:
+```yaml
+amount_pattern: "\\d+\\.\\d{2}"
+date_pattern: "\\d{4}-\\d{2}-\\d{2}"
+tax_rules:
+  "Coffee Shop": "Meals"
+  "Office Supply Co.": "Office Supplies"
+```
