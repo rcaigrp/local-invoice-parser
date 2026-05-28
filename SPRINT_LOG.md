@@ -175,3 +175,7 @@ Setting up the Local-Invoice-Parser project scaffolding and defining the Definit
 ## Turn 12 — Manager (2026-05-28 16:21 UTC)
 
 
+
+## Turn 13 — Manager (2026-05-28 16:24 UTC)
+
+Initializing Local-Invoice-Parser project as the next queued idea. The project structure is created with project.json defining strict acceptance criteria and README documenting the critical system-level Tesseract dependency.

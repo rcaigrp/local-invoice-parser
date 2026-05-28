@@ -1,23 +1,36 @@
-# Local-Invoice-Parser
+# Local Invoice Parser
 
-## What the app does
-A privacy-first, local-only CLI tool that scans directories for invoices, extracts data using local OCR and regex, and outputs structured reports.
+A privacy-focused, offline-capable CLI tool to extract invoice data from local image and PDF files using OCR.
 
-## Installation and setup steps
+## What it does
+Extracts structured invoice data (vendor, date, amount) from local image/PDF files using OCR and Regex, and outputs the results to CSV or JSON.
 
-1. Clone the repository.
-2. Install Python dependencies:
-   ```bash
-   pip install regex pytest pytest-mock
-   ```
-3. *Note: System-level Tesseract OCR is required for production use, but tests will mock this dependency.*
+## Installation & Setup
 
-## Usage examples
+### System Dependencies
+**Crucial:** This tool requires Tesseract OCR installed on your system.
 
-Run the parser on a directory:
+**Ubuntu/Debian:**
 ```bash
-python main.py /path/to/invoices
+sudo apt-get install tesseract-ocr tesseract-ocr-eng
+```
+
+**macOS:**
+```bash
+brew install tesseract
+```
+
+### Python Dependencies
+```bash
+pip install pytesseract pillow pdf2image requests regex
+```
+
+## Usage
+
+Run the parser against a directory:
+```bash
+python main.py --directory ./invoices --output output.csv --format csv
 ```
 
 ## Configuration
-No environment variables or config files required for basic usage.
+No configuration files required. Use command line arguments for directory path and output format.
