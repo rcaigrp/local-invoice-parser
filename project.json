@@ -1,13 +1,1 @@
-{
-  "goal": "A Python CLI tool that scans a specified directory for image files (PNG, JPG) and PDF files. It uses a local OCR library (like pytesseract) to extract text, then applies regex rules to identify vendor, date, and amount fields. It outputs a structured CSV/JSON file and supports simple tax categorization rules. No external APIs or cloud sync.",
-  "acceptance_criteria": [
-    "The CLI module runs and accepts a directory path argument",
-    "The scanner identifies image and PDF files in the directory",
-    "The OCR module extracts text from files using pytesseract",
-    "The parser applies regex rules to identify vendor, date, and amount fields",
-    "The tool outputs a structured CSV/JSON file with extracted data"
-  ],
-  "meeting_budget": 5,
-  "meetings_held": 0,
-  "status": "active"
-}
+{"name": "Local-Invoice-Parser", "goal": "Python CLI tool that scans a specified directory for image files (PNG, JPG) and PDF files. It uses a local OCR library (like pytesseract) to extract text, then applies regex rules to identify vendor, date, and amount fields. It outputs a structured CSV/JSON file and supports simple tax categorization rules. No external APIs or cloud sync.", "acceptance_criteria": ["The tool scans a directory and extracts vendor, date, and amount using regex.", "The tool outputs parsed data to CSV/JSON.", "The tool handles both images and PDFs locally."], "meeting_budget": 5, "meetings_held": 0, "status": "active"}

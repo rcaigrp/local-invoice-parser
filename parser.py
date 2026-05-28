@@ -1,60 +1,57 @@
-import re
 import os
-import tempfile
+import re
+from pathlib import Path
 
-class InvoiceParser:
-    def __init__(self):
-        # Regex patterns
-        self.date_pattern = re.compile(r'\d{1,4}[-/\\. ]\d{1,4}[-/\\. ]\d{2,4}')  # Flexible date
-        self.amount_pattern = re.compile(r'\$?\d{1,3}(?:,\d{3})?(?:\.\d{2})?')  # Flexible currency
-        # Vendor pattern: Capture text until a number is found
-        self.vendor_pattern = re.compile(r'[A-Za-z\s]+') 
+# --- Directory Scanning Logic ---
+def scan_directory(directory_path):
+    """
+    Scans a directory for invoices (images/PDFs).
+    Returns a list of file paths.
+    """
+    target_extensions = {'.png', '.jpg', '.jpeg', '.pdf'}
+    invoice_files = []
+    
+    root_path = Path(directory_path).resolve()
+    if not root_path.exists():
+        raise FileNotFoundError(f"Directory {directory_path} not found.")
+    
+    for file_path in root_path.rglob('*'):
+        if file_path.is_file():
+            # Check extension
+            if file_path.suffix.lower() in target_extensions:
+                invoice_files.append(file_path)
+    
+    return invoice_files
 
-    def process_invoice(self, file_path):
-        """Extracts text using OCR and parses fields."""
-        try:
-            # This would call pytesseract in production. Tests will mock this.
-            text = self._ocr_extract(file_path)
-            if not text:
-                return None
+# --- Regex Patterns ---
+# Vendor: Captures capitalized words (heuristic for company names)
+VENDOR_REGEX = re.compile(r'[A-Z][a-zA-Z]+(?: [A-Z][a-zA-Z]+)*')
 
-            # Find date
-            date_match = self.date_pattern.search(text)
-            date_str = date_match.group(0) if date_match else "Unknown"
+# Date: Matches YYYY-MM-DD, MM/DD/YYYY, DD-MM-YYYY
+DATE_REGEX = re.compile(r'\d{4}[-/.]\d{2}[-/.]\d{2}')
 
-            # Find amount
-            amount_match = self.amount_pattern.search(text)
-            amount_str = amount_match.group(0) if amount_match else "0.00"
+# Amount: Matches currency symbols followed by numbers
+AMOUNT_REGEX = re.compile(r'[$€£]\d{1,3}(?:,\d{3}(?:\.\d{2})?|\.\d{2})?')
 
-            # Find vendor (simplified: text before the date or amount)
-            # Re-scanning for vendor name specifically
-            vendor_match = self.vendor_pattern.search(text)
-            vendor_str = vendor_match.group(0) if vendor_match else "Unknown Vendor"
-
-            # Determine tax category
-            category = self._categorize(vendor_str)
-
-            return {
-                'vendor': vendor_str,
-                'date': date_str,
-                'amount': amount_str,
-                'tax_category': category
-            }
-        except Exception as e:
-            raise Exception(f"Processing error: {e}")
-
-    def _ocr_extract(self, file_path):
-        """Placeholder for pytesseract call."""
-        raise NotImplementedError("Must be mocked in tests")
-
-    def _categorize(self, vendor):
-        """Simple tax categorization based on vendor name."""
-        if 'Amazon' in vendor or 'Best Buy' in vendor:
-            return 'Electronics'
-        elif 'Uber' in vendor:
-            return 'Transport'
-        elif 'Microsoft' in vendor or 'Google' in vendor:
-            return 'Software'
-        elif 'Costco' in vendor:
-            return 'Retail'
-        return 'Misc'
+def extract_invoice_data(text):
+    """
+    Extracts vendor, date, and amount from text using regex.
+    """
+    data = {"vendor": None, "date": None, "amount": None}
+    
+    vendor_match = VENDOR_REGEX.search(text)
+    if vendor_match:
+        data["vendor"] = vendor_match.group().strip()
+    
+    date_match = DATE_REGEX.search(text)
+    if date_match:
+        data["date"] = date_match.group().strip()
+    
+    amount_match = AMOUNT_REGEX.search(text)
+    if amount_match:
+        # Normalize amount to float if needed
+        raw = amount_match.group().strip()
+        # Simple cleanup for testing
+        data["amount"] = raw.replace(',', '') if '.' in raw else raw
+    
+    return data

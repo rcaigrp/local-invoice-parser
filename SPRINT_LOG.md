@@ -179,3 +179,7 @@ Setting up the Local-Invoice-Parser project scaffolding and defining the Definit
 ## Turn 13 — Manager (2026-05-28 16:24 UTC)
 
 Initializing Local-Invoice-Parser project as the next queued idea. The project structure is created with project.json defining strict acceptance criteria and README documenting the critical system-level Tesseract dependency.
+
+## Turn 14 — Architect (2026-05-28 16:28 UTC)
+
+I am architecting the Local-Invoice-Parser. I will define the regex patterns for extracting vendor, date, and amount from OCR output, and design the directory scanning logic. I am establishing the project structure and mandatory acceptance tests first, per Manager's rule 11.
