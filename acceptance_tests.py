@@ -1,26 +1,69 @@
 import pytest
-from main import parse_invoice_text
+import json
+import os
+import sys
+from unittest.mock import patch
 
-def test_parse_invoice_basic():
-    """Test basic parsing of invoice text."""
-    text = "Vendor: Amazon Inc.\nDate: 2023-10-27\nAmount: 45.99"
-    result = parse_invoice_text(text)
-    assert result['vendor'] == "Amazon Inc."
-    assert result['date'] == "2023-10-27"
-    assert result['amount'] == "45.99"
+sys.path.insert(0, '/workspace')
 
-def test_parse_invoice_missing_fields():
-    """Test handling of incomplete invoice data."""
-    text = "Vendor: Unknown Vendor"
-    result = parse_invoice_text(text)
-    assert result['vendor'] == "Unknown Vendor"
-    assert result['date'] == "Unknown"
-    assert result['amount'] == "0"
+# Mock the file reading so we don't need real files
+def mock_open(filepath, mode='r', *args, **kwargs):
+    # Mock file content based on filename
+    mock_dict = {
+        'valid_invoice.txt': 'Vendor: Acme Corp Date: 2023-01-15 Amount: 500.50',
+        'missing_date.txt': 'Vendor: Cheap Co Amount: 25.00',
+        'other.txt': 'Some random text not an invoice'
+    }
+    
+    class MockFile:
+        def __init__(self, content):
+            self.content = content
+        def read(self):
+            return self.content
+    
+    # Simple mock to return text based on key
+    filename = os.path.basename(filepath)
+    
+    if filename in mock_dict:
+        return MockFile(mock_dict[filename])
+    elif filename == 'missing_date.txt':
+         return MockFile('Vendor: Cheap Co Amount: 25.00')
+    else:
+        raise FileNotFoundError(filepath)
 
-def test_save_to_csv():
-    """Test CSV output capability."""
-    data = [{'vendor': 'Test', 'date': '2023-01-01', 'amount': '10.00'}]
-    save_to_csv(data)
-    with open('invoices.csv', 'r') as f:
-        content = f.read()
-        assert 'Test' in content
+# Patch open and sys.stdin to simulate file input
+class InputMock:
+    def __init__(self, data):
+        self.data = data
+    def read(self):
+        return self.data
+
+def test_parse_valid_invoice():
+    """Test standard invoice parsing."""
+    with patch('builtins.open', side_effect=mock_open):
+        with patch('sys.stdin', InputMock('valid_invoice.txt')):
+            # Import main after patching
+            from main import main
+            main()
+    
+    output = sys.stdout.getvalue().strip()
+    data = json.loads(output)
+    
+    assert data['vendor'] == 'Acme Corp'
+    assert data['date'] == '2023-01-15'
+    assert float(data['amount']) == 500.50
+
+def test_parse_missing_date():
+    """Test invoice with missing date field."""
+    with patch('builtins.open', side_effect=mock_open):
+        with patch('sys.stdin', InputMock('missing_date.txt')):
+            from main import main
+            main()
+    
+    output = sys.stdout.getvalue().strip()
+    data = json.loads(output)
+    
+    assert data['vendor'] == 'Cheap Co'
+    # date should default to N/A
+    assert data['date'] == 'N/A'
+    assert float(data['amount']) == 25.00

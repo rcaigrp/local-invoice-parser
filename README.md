@@ -1,29 +1,30 @@
 # Local Invoice Parser
 
-A privacy-first CLI tool to extract invoice data from local images using OCR.
+A robust CLI tool to parse invoice text files and convert them into structured JSON data.
+
+## What it does
+
+Extracts vendor name, invoice date, and total amount from text-based invoice files using the `pyparsing` library.
 
 ## Installation
 
-1. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-2. Install Tesseract OCR (System Dependency):
-   ```bash
-   # Ubuntu/Debian
-   sudo apt-get install -y tesseract-ocr libtesseract-dev
-   # MacOS
-   brew install tesseract
-   # Windows (Download from site)
-   ```
+```bash
+cd storage/projects/Local-Invoice-Parser
+pip install pyparsing pytest responses
+```
 
 ## Usage
 
+Run the parser on a file:
 ```bash
-python -m invoice_parser scan ./invoices --output invoices.csv
+python main.py invoice.txt
+```
+
+Expected output to stdout:
+```json
+{ "vendor": "VendorName", "date": "2023-10-01", "amount": 100.00 }
 ```
 
 ## Configuration
 
-No external APIs required. All processing happens locally.
+No configuration required. Default output format is JSON.

@@ -1,37 +1,33 @@
-# Local Invoice Parser
-# Architecture: Local-first, standard library only.
-import csv
-import re
-from typing import Dict
+import argparse
+import json
+import sys
+from invoice_parser import parse_invoice
 
-def parse_invoice_text(text: str) -> Dict[str, str]:
-    """Parses raw invoice text into structured data."""
-    vendor_pattern = re.compile(r'Vendor:\s*(.*?)\n')
-    date_pattern = re.compile(r'Date:\s*(\d{4}-\d{2}-\d{2})')
-    amount_pattern = re.compile(r'Amount:\s*([\d.,]+)')
-    
-    vendor_match = vendor_pattern.search(text)
-    date_match = date_pattern.search(text)
-    amount_match = amount_pattern.search(text)
-    
-    invoice_data = {
-        'vendor': vendor_match.group(1).strip() if vendor_match else 'Unknown',
-        'date': date_match.group(1) if date_match else 'Unknown',
-        'amount': amount_match.group(1) if amount_match else '0'
-    }
-    return invoice_data
+def main():
+    parser = argparse.ArgumentParser(description='Parse invoice files to JSON.')
+    parser.add_argument('input_file', help='Path to the invoice text file')
+    parser.add_argument('--output', '-o', help='Output file (optional)', default=None)
+    args = parser.parse_args()
 
-def save_to_csv(data: list, filename: str = "invoices.csv"):
-    """Saves parsed invoices to a CSV file."""
-    if not data:
-        return
-    with open(filename, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=['vendor', 'date', 'amount'])
-        writer.writeheader()
-        writer.writerows(data)
+    try:
+        with open(args.input_file, 'r') as f:
+            text = f.read()
+        
+        data = parse_invoice(text)
+        
+        if args.output:
+            with open(args.output, 'w') as f:
+                json.dump(data, f, indent=2)
+            print(f"Data saved to {args.output}")
+        else:
+            print(json.dumps(data, indent=2))
+            
+    except FileNotFoundError:
+        print(f"Error: File {args.input_file} not found.")
+        sys.exit(1)
+    except Exception as e:
+        print(f"Error parsing invoice: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sample = "Vendor: Amazon Inc.\nDate: 2023-10-27\nAmount: 45.99"
-    result = parse_invoice_text(sample)
-    print(f"Parsed: {result}")
-    save_to_csv([result])
+    main()

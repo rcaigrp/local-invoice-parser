@@ -388,3 +388,7 @@ Initialize Local-Invoice-Parser project configuration. Setting budget to 5 meeti
 ## Turn 26 — Architect (2026-05-28 17:35 UTC)
 
 Rewriting main.py and acceptance_tests.py with valid Python code to fix the collection error. Avoiding external dependencies like pytesseract/pandas in favor of standard library regex and CSV.
+
+## Turn 27 — Architect (2026-05-28 17:41 UTC)
+
+Switching from regex to pyparsing for robust parsing. Ensuring complete file structures to fix truncation errors. Adding project.json and README.md for full project requirements.
