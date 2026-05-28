@@ -1,1 +1,6 @@
 pytesseract
+pillow
+re
+pandas
+pytest
+pytest-mock

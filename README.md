@@ -1,33 +1,20 @@
-# Local-Invoice-Parser
-
-An offline, client-side CLI tool to parse invoice images into structured data using OCR.
+# Local Invoice Parser
 
 ## What it does
-Scans a folder for images/PDFs, extracts text via Tesseract OCR, and parses fields like Date, Amount, and Vendor using Regex.
+Extracts vendor, date, and amount data from invoices using OCR and regex.
 
-## Installation
-
-1.  Clone the repository
-2.  Install Python dependencies:
-    ```bash
-    pip install -r requirements.txt
-    ```
-    **Note:** You must have `tesseract-ocr` installed on your system (OS packages or Docker image). PyTesseract depends on this binary.
+## Installation & Setup
+1. Install Python dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+2. *Note: pytesseract requires Tesseract OCR installed on the system. Please install it via your OS package manager (e.g., apt-get install tesseract-ocr).*
 
 ## Usage
-
+Run the CLI tool:
 ```bash
-python main.py --input ./invoices --output ./parsed.csv
+python main.py --input ./invoices --output ./output.csv
 ```
 
 ## Configuration
-
-No external config required. Regex rules are embedded in `parser.py`.
-
-## Example Output (CSV)
-
-```csv
-vendor,date,amount,tax_category
-Amazon,$120.00,Electronics
-Uber,$45.50,Transportation
-```
+No configuration files required. Input and output paths are passed as command-line arguments.
