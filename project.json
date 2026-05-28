@@ -1,9 +1,11 @@
 {
-  "goal": "A Python CLI tool that scans a specified directory for image files (PNG, JPG) and PDF files. It uses a local OCR library to extract text, then applies regex rules to identify vendor, date, and amount fields. It outputs a structured CSV/JSON file and supports simple tax categorization rules. No external APIs or cloud sync.",
+  "goal": "A Python CLI tool that scans a specified directory for image files (PNG, JPG) and PDF files. It uses a local OCR library (like pytesseract) to extract text, then applies regex rules to identify vendor, date, and amount fields. It outputs a structured CSV/JSON file and supports simple tax categorization rules. No external APIs or cloud sync.",
   "acceptance_criteria": [
-    "Module runs via python command",
-    "Regex patterns extract vendor, date, amount correctly",
-    "CSV output generated"
+    "CLI scans a directory recursively for images/PDFs",
+    "OCR extracts text and regex identifies vendor, date, and amount",
+    "Outputs a structured CSV file",
+    "Outputs a structured JSON file",
+    "Tax categorization rules are applied"
   ],
   "meeting_budget": 5,
   "meetings_held": 0,
